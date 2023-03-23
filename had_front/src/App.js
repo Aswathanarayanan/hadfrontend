@@ -7,6 +7,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React,{useState} from 'react';
 import fetchService from './services/fetchService';
 import otpservice from "./services/setOtpService";
+import modeservice from "./services/modeService";
+import Mode from "./components/Mode";
 
 
 const App = () => {
@@ -14,6 +16,8 @@ const App = () => {
   const [ user, setUser ] = useState(null)
   const [abhaid ,setAbha] = useState(null)
   const [p_data ,setData] = useState(null)
+  const [mode,setMode] =useState(null)
+  const [listmode,setlistMode] =useState(null)
 
   const [ notification, setNotification ] = useState(null)
   const [ notificationType, setNotificationType ] = useState(null)
@@ -46,8 +50,24 @@ const App = () => {
   const handleabhafetch = async (id) =>{
     try{
       setAbha(id);
-      const fetchobject = await fetchService.fetch(id)
+      const fetchobject = await fetchService.fetch(id);
       console.log(id);
+      const getmod= await fetchService.getmode();
+      //setlistMode(await fetchService.getmode());
+      setlistMode(getmod);
+      console.log(listmode[1]);
+      notificationHandler(`Organisation updated successfully response ${fetchobject}`, 'success');
+    }
+    catch (exception) {
+      notificationHandler(`Update failed`, 'error');
+    }
+  }
+
+  const handleMode = async (mode) =>{
+    try{
+      setMode(mode);
+      const fetchobject = await modeservice.selectmode(mode)
+      console.log(mode);
       notificationHandler(`Organisation updated successfully response ${fetchobject}`, 'success')
     }
     catch (exception) {
@@ -74,7 +94,7 @@ const App = () => {
       {/* <div class="card"> */}
       <div className='text-center page-header p-2 regular-text-shadow regular-shadow' id='' role='tab'>
           <h3 className='display-4 font-weight-bold mb-0'>
-            Health Infromation System
+            Health Information System
           </h3>
         </div>
 
@@ -84,10 +104,6 @@ const App = () => {
           <Login startLogin={handleLogin}/>
       }
       </div>
-      {/* {
-           user !== null &&
-          <Menu />
-      } */}
       <div>
       {
            user !== null && abhaid === null &&
@@ -96,7 +112,13 @@ const App = () => {
       </div>
       <div>
       {
-           abhaid !== null &&
+           user !== null &&  abhaid !== null && mode === null &&
+          <Mode  selectmode={handleMode} list={listmode}/>
+      }
+      </div>
+      <div>
+      {
+           abhaid !== null && mode!==null &&
           <Otp  setOtp={handleotp}/>
       }
        {   p_data != null &&
